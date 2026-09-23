@@ -1,0 +1,2615 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOS 100-Question Exam Center</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        msword: {
+                            DEFAULT: '#185abd',
+                            dark: '#103f8a',
+                            light: '#e8f0fe'
+                        },
+                        msexcel: {
+                            DEFAULT: '#107c41',
+                            dark: '#0b522b',
+                            light: '#e6f4ea'
+                        },
+                        msppt: {
+                            DEFAULT: '#c43e1c',
+                            dark: '#8a2b13',
+                            light: '#fce8e6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col relative">
+
+    <!-- MANDATORY USER NAME REGISTRATION MODAL -->
+    <div id="user-gate-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center space-y-6 animate-fade-in">
+            <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl mx-auto shadow-inner">
+                <i class="fa-solid fa-user-pen"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Selamat Datang!</h2>
+                <p class="text-slate-500 text-xs sm:text-sm mt-1.5 leading-relaxed">
+                    Silakan isi nama lengkap Anda sebelum membuka web simulasi ujian Microsoft Office Specialist (100 Soal).
+                </p>
+            </div>
+
+            <form id="gate-form" onsubmit="handleUserRegistration(event)" class="space-y-4 text-left">
+                <div>
+                    <label for="input-user-fullname" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Nama Lengkap Peserta <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <i class="fa-solid fa-id-card absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="input-user-fullname" required placeholder="Contoh: Budi Santoso, S.Kom" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="input-user-instansi" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Instansi / Sekolah / Universitas <span class="text-slate-400 font-normal">(Opsional)</span>
+                    </label>
+                    <div class="relative">
+                        <i class="fa-solid fa-building-columns absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="input-user-instansi" placeholder="Contoh: Universitas Indonesia" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <div id="gate-error-msg" class="hidden text-xs text-rose-600 font-semibold text-center bg-rose-50 p-2.5 rounded-lg border border-rose-200">
+                    Nama tidak boleh kosong!
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition shadow-lg shadow-indigo-600/30 text-sm flex items-center justify-center space-x-2">
+                    <span>Mulai Akses Exam Center</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+
+            <div class="text-[11px] text-slate-400 border-t border-slate-100 pt-3 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-shuffle text-emerald-500"></i>
+                <span>Soal & Opsi diacak otomatis setiap sesi / reload</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="flex space-x-1">
+                        <span class="w-3 h-7 bg-msword rounded-sm"></span>
+                        <span class="w-3 h-7 bg-msexcel rounded-sm"></span>
+                        <span class="w-3 h-7 bg-msppt rounded-sm"></span>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base sm:text-lg leading-tight">MOS 100-Question Exam Center</h1>
+                        <p class="text-xs text-slate-400">Word • Excel • PowerPoint (100 Soal Acak)</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex space-x-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-slate-800 text-white">
+                        <i class="fa-solid fa-chart-pie mr-2 text-indigo-400"></i>Dashboard
+                    </button>
+                    <button onclick="switchTab('practice')" id="nav-practice" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-list-check mr-2 text-emerald-400"></i>Latihan Soal (100)
+                    </button>
+                    <button onclick="switchTab('exam')" id="nav-exam" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-stopwatch mr-2 text-amber-400"></i>Simulasi Ujian
+                    </button>
+                    <button onclick="switchTab('cheatsheet')" id="nav-cheatsheet" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-book-open mr-2 text-cyan-400"></i>Rangkuman
+                    </button>
+                </nav>
+
+                <!-- User Info Profile & Re-register Button -->
+                <div class="hidden lg:flex items-center space-x-3 bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-xl">
+                    <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-sm">
+                        <span id="user-avatar-initial">U</span>
+                    </div>
+                    <div class="text-left">
+                        <p id="display-header-user" class="text-xs font-semibold text-slate-200 max-w-[130px] truncate">Peserta Ujian</p>
+                        <p id="display-header-instansi" class="text-[10px] text-slate-400 truncate max-w-[130px]">MOS Candidate</p>
+                    </div>
+                    <button onclick="openChangeUserModal()" title="Ubah Nama Peserta" class="text-xs text-slate-400 hover:text-white p-1 transition">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center space-x-2">
+                    <button onclick="openChangeUserModal()" class="p-2 text-slate-300 hover:text-white focus:outline-none text-xs flex items-center space-x-1 bg-slate-800 rounded-lg">
+                        <i class="fa-solid fa-user-circle"></i>
+                        <span id="mobile-user-name" class="max-w-[70px] truncate">User</span>
+                    </button>
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 text-slate-300 hover:text-white focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 px-4 pt-2 pb-4 space-y-2 border-t border-slate-700">
+            <button onclick="switchTab('dashboard'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-slate-700">
+                <i class="fa-solid fa-chart-pie mr-2 text-indigo-400"></i>Dashboard
+            </button>
+            <button onclick="switchTab('practice'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-list-check mr-2 text-emerald-400"></i>Latihan Soal (100)
+            </button>
+            <button onclick="switchTab('exam'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-stopwatch mr-2 text-amber-400"></i>Simulasi Ujian
+            </button>
+            <button onclick="switchTab('cheatsheet'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-book-open mr-2 text-cyan-400"></i>Rangkuman Materi
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- DASHBOARD TAB -->
+        <div id="tab-dashboard" class="tab-content space-y-6">
+            <!-- Welcome Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-white">
+                    <i class="fa-solid fa-laptop-code text-[220px]"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                            <i class="fa-solid fa-award mr-1.5"></i> Sertifikasi Microsoft Office (MOS)
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            <i class="fa-solid fa-shuffle mr-1"></i> Mode Acak Aktif
+                        </span>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                        Halo, <span id="dash-greeting-name" class="text-indigo-300">Peserta</span>! 👋
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Selamat datang di portal simulasi Uji Kompetensi Microsoft Office. Bank soal berisi **100 soal** yang diacak secara otomatis (Word, Excel, & PowerPoint) untuk melatih kesiapan ujian sertifikasi Anda.
+                    </p>
+                    <div class="pt-3 flex flex-wrap gap-3">
+                        <button onclick="switchTab('practice')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-lg shadow-indigo-600/30 flex items-center">
+                            <i class="fa-solid fa-play mr-2"></i> Mulai Latihan Soal
+                        </button>
+                        <button onclick="switchTab('exam')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-5 py-2.5 rounded-xl font-semibold text-sm transition flex items-center">
+                            <i class="fa-solid fa-clock mr-2 text-amber-400"></i> Simulasi Ujian
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Bank Soal</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-total-q">100</h3>
+                        <p class="text-xs text-slate-400 mt-1">Word, Excel, PowerPoint</p>
+                    </div>
+                    <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-xl">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Dikerjakan</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-attempted">0</h3>
+                        <p class="text-xs text-slate-400 mt-1">Soal latihan dijawab</p>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-xl">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Nilai Tertinggi</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-highscore">0%</h3>
+                        <p class="text-xs text-slate-400 mt-1">Skor Simulasi Ujian</p>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 font-bold text-xl">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Status Lulus</p>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-status">Belum Ada</h3>
+                        <p class="text-xs text-slate-400 mt-1">Standard Pass: 70%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 font-bold text-xl">
+                        <i class="fa-solid fa-certificate"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module Overview -->
+            <div>
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
+                    <span class="flex items-center"><i class="fa-solid fa-cubes text-indigo-600 mr-2"></i> Modul Pembelajaran & Bank 100 Soal</span>
+                    <button onclick="reshuffleQuestionBank()" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-200 flex items-center space-x-1 transition">
+                        <i class="fa-solid fa-shuffle"></i>
+                        <span>Acak Ulang Soal Now</span>
+                    </button>
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Word Card -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition">
+                        <div class="bg-msword p-4 text-white flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-black text-xl">W</div>
+                                <div>
+                                    <h4 class="font-bold text-lg">Microsoft Word</h4>
+                                    <p class="text-xs text-blue-100">Pengolah Kata</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold bg-white/20 px-2.5 py-1 rounded-full">34 Soal</span>
+                        </div>
+                        <div class="p-5 text-sm text-slate-600 space-y-2">
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Jendela & Menu Ribbon</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Format File & Indentasi</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Mail Merge, TOC, & Styles</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Section Breaks & Track Changes</p>
+                            <div class="pt-4 flex gap-2">
+                                <button onclick="startCategoryPractice('word')" class="flex-1 bg-msword/10 hover:bg-msword/20 text-msword font-semibold py-2 rounded-lg text-xs text-center transition">
+                                    Latihan Word
+                                </button>
+                                <button onclick="openCheatsheetModule('word')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-2 rounded-lg text-xs transition">
+                                    Materi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Excel Card -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition">
+                        <div class="bg-msexcel p-4 text-white flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-black text-xl">X</div>
+                                <div>
+                                    <h4 class="font-bold text-lg">Microsoft Excel</h4>
+                                    <p class="text-xs text-emerald-100">Spreadsheet & Analisis Data</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold bg-white/20 px-2.5 py-1 rounded-full">33 Soal</span>
+                        </div>
+                        <div class="p-5 text-sm text-slate-600 space-y-2">
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Rumus Statistik & Logika IF</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> VLOOKUP, HLOOKUP, XLOOKUP</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Referensi Absolut ($) & PivotTable</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Kode Error (#DIV/0!, #N/A, dll)</p>
+                            <div class="pt-4 flex gap-2">
+                                <button onclick="startCategoryPractice('excel')" class="flex-1 bg-msexcel/10 hover:bg-msexcel/20 text-msexcel font-semibold py-2 rounded-lg text-xs text-center transition">
+                                    Latihan Excel
+                                </button>
+                                <button onclick="openCheatsheetModule('excel')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-2 rounded-lg text-xs transition">
+                                    Materi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PowerPoint Card -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition">
+                        <div class="bg-msppt p-4 text-white flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-black text-xl">P</div>
+                                <div>
+                                    <h4 class="font-bold text-lg">Microsoft PowerPoint</h4>
+                                    <p class="text-xs text-orange-100">Presentasi Media Interaktif</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold bg-white/20 px-2.5 py-1 rounded-full">33 Soal</span>
+                        </div>
+                        <div class="p-5 text-sm text-slate-600 space-y-2">
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Slide Master & Tampilan View</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Transitions & Kategori Animations</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Presenter View & Rehearse Timings</p>
+                            <p class="flex items-center"><i class="fa-solid fa-check text-emerald-500 mr-2 text-xs"></i> Shortcuts Presentasi & Ekspor</p>
+                            <div class="pt-4 flex gap-2">
+                                <button onclick="startCategoryPractice('ppt')" class="flex-1 bg-msppt/10 hover:bg-msppt/20 text-msppt font-semibold py-2 rounded-lg text-xs text-center transition">
+                                    Latihan PPT
+                                </button>
+                                <button onclick="openCheatsheetModule('ppt')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-2 rounded-lg text-xs transition">
+                                    Materi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRACTICE TAB -->
+        <div id="tab-practice" class="tab-content hidden space-y-6">
+            <!-- Filter Bar -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center space-x-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-2">Filter:</span>
+                    <button onclick="filterPractice('all')" id="prac-filter-all" class="prac-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white">Semua (100)</button>
+                    <button onclick="filterPractice('word')" id="prac-filter-word" class="prac-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">Word (34)</button>
+                    <button onclick="filterPractice('excel')" id="prac-filter-excel" class="prac-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">Excel (33)</button>
+                    <button onclick="filterPractice('ppt')" id="prac-filter-ppt" class="prac-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">PowerPoint (33)</button>
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end">
+                    <button onclick="reshuffleQuestionBank()" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1">
+                        <i class="fa-solid fa-shuffle text-indigo-600"></i>
+                        <span>Acak Urutan</span>
+                    </button>
+                    <button onclick="togglePracticePalette()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
+                        <i class="fa-solid fa-grip mr-1.5"></i> Jump to Question
+                    </button>
+                </div>
+            </div>
+
+            <!-- Practice Question Palette Grid (Drawer) -->
+            <div id="practice-palette-box" class="hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pilih Nomor Soal</h4>
+                    <button onclick="togglePracticePalette()" class="text-xs text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-sm"></i></button>
+                </div>
+                <div id="practice-palette-grid" class="grid grid-cols-5 sm:grid-cols-10 md:grid-cols-20 gap-1.5 max-h-48 overflow-y-auto custom-scrollbar p-1">
+                    <!-- Dynamic Grid Buttons -->
+                </div>
+            </div>
+
+            <!-- Practice Question Container -->
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <!-- Header -->
+                <div class="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
+                    <div>
+                        <span id="practice-category-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/30 text-indigo-300">
+                            Microsoft Word
+                        </span>
+                        <h3 class="text-lg font-bold mt-1">Soal Ke-<span id="practice-current-num">1</span> dari <span id="practice-total-num">100</span></h3>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block">Status Latihan</span>
+                        <span class="text-sm font-bold text-emerald-400" id="practice-score-counter">Benar: 0</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-200 h-1.5">
+                    <div id="practice-progress-bar" class="bg-indigo-600 h-1.5 transition-all duration-300" style="width: 1%"></div>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 sm:p-8 space-y-6">
+                    <p id="practice-question-text" class="text-lg font-medium text-slate-800 leading-relaxed">
+                        Loading soal...
+                    </p>
+
+                    <div id="practice-options-container" class="space-y-3">
+                        <!-- Options generated dynamically -->
+                    </div>
+
+                    <div id="practice-explanation-box" class="hidden p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <div class="flex items-center font-bold text-sm" id="practice-result-title">
+                            <!-- Correct / Incorrect -->
+                        </div>
+                        <p id="practice-explanation-text" class="text-sm text-slate-600 leading-relaxed">
+                            <!-- Explanation -->
+                        </p>
+                    </div>
+
+                    <!-- Nav Controls -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <button onclick="prevPracticeQuestion()" id="practice-prev-btn" class="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition disabled:opacity-50">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>Sebelumnya
+                        </button>
+                        <button onclick="nextPracticeQuestion()" id="practice-next-btn" class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition">
+                            Selanjutnya <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXAM TAB -->
+        <div id="tab-exam" class="tab-content hidden space-y-6">
+            <!-- Exam Setup Screen -->
+            <div id="exam-start-screen" class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm text-center space-y-6">
+                <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl mx-auto font-bold">
+                    <i class="fa-solid fa-stopwatch"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900">Simulasi Ujian MOS Specialist</h3>
+                    <p class="text-slate-500 text-sm mt-2 max-w-md mx-auto">
+                        Peserta Ujian: <strong id="exam-start-user-name" class="text-slate-800">Nama Peserta</strong>
+                    </p>
+                </div>
+
+                <!-- Exam Configuration Select -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left space-y-3">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Pilih Paket Ujian:</label>
+                    <select id="exam-config-select" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="20_15">20 Soal Acak (15 Menit) - Standar Ringkas</option>
+                        <option value="30_25">30 Soal Acak (25 Menit) - Standar Sertifikasi</option>
+                        <option value="50_40">50 Soal Acak (40 Menit) - Simulasi Intensif</option>
+                        <option value="100_75">100 Soal Lengkap (75 Menit) - Full Exam Marathon</option>
+                    </select>
+                </div>
+
+                <div class="text-left text-xs text-slate-500 space-y-1">
+                    <p><i class="fa-solid fa-circle-check mr-1 text-emerald-500"></i> Setiap ujian menarik soal & urutan jawaban secara **acak**.</p>
+                    <p><i class="fa-solid fa-circle-check mr-1 text-emerald-500"></i> Laporan hasil dan sertifikat cetak nama Anda secara otomatis.</p>
+                </div>
+
+                <button onclick="startExamSimulation()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-lg shadow-amber-500/20 text-base flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Mulai Ujian Sekarang</span>
+                </button>
+            </div>
+
+            <!-- Active Exam Screen -->
+            <div id="exam-active-screen" class="hidden space-y-6 max-w-4xl mx-auto">
+                <div class="bg-slate-900 text-white p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 sticky top-20 z-40 shadow-lg">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xs font-bold px-3 py-1 bg-amber-500 text-slate-950 rounded-full">UJIAN BERLANGSUNG</span>
+                        <span class="text-sm text-slate-300 font-medium">Soal <span id="exam-current-idx">1</span> / <span id="exam-total-count">20</span></span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2 bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
+                            <i class="fa-solid fa-clock text-amber-400 animate-pulse"></i>
+                            <span id="exam-timer-display" class="font-mono text-lg font-bold text-white">15:00</span>
+                        </div>
+                        <button onclick="showFinishModal()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+                            Selesai & Kirim
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span id="exam-module-tag" class="text-xs font-bold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600">
+                            MODULE
+                        </span>
+                        <button id="exam-bookmark-btn" onclick="toggleExamBookmark()" class="text-xs text-slate-400 hover:text-amber-500 flex items-center">
+                            <i class="fa-regular fa-bookmark mr-1 text-sm"></i> Tandai Soal
+                        </button>
+                    </div>
+
+                    <h3 id="exam-question-text" class="text-lg sm:text-xl font-semibold text-slate-900 leading-relaxed">
+                        Pertanyaan...
+                    </h3>
+
+                    <div id="exam-options-container" class="space-y-3">
+                        <!-- Options dynamically -->
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-between">
+                        <button onclick="prevExamQuestion()" id="exam-prev-btn" class="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                            Sebelumnya
+                        </button>
+
+                        <div class="flex space-x-2">
+                            <button onclick="toggleExamPalette()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700">
+                                <i class="fa-solid fa-grip mr-1"></i> Peta Soal
+                            </button>
+                            <button onclick="nextExamQuestion()" id="exam-next-btn" class="px-5 py-2 rounded-lg text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-500 transition">
+                                Selanjutnya
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Palette Modal -->
+                <div id="exam-palette-modal" class="hidden bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h4 class="text-sm font-bold text-slate-700 mb-3">Navigasi Soal Ujian</h4>
+                    <div id="exam-palette-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 max-h-60 overflow-y-auto custom-scrollbar p-1">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Result Screen -->
+            <div id="exam-result-screen" class="hidden space-y-6 max-w-3xl mx-auto">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 text-center space-y-6">
+                    <div id="result-icon-box" class="w-20 h-20 rounded-full flex items-center justify-center text-3xl mx-auto font-bold bg-emerald-100 text-emerald-600">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+
+                    <div>
+                        <span id="result-status-badge" class="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                            LULUS
+                        </span>
+                        <h3 class="text-3xl font-black text-slate-900 mt-2" id="result-score-percent">85%</h3>
+                        <p class="text-slate-700 font-semibold text-base mt-1" id="result-user-fullname">Nama Peserta</p>
+                        <p class="text-slate-400 text-xs mt-0.5" id="result-score-detail">Anda menjawab benar 17 dari 20 soal</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 text-left">
+                        <div>
+                            <span class="text-xs text-slate-400 block">Word Score</span>
+                            <span class="text-sm font-bold text-msword" id="res-word-score">80%</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block">Excel Score</span>
+                            <span class="text-sm font-bold text-msexcel" id="res-excel-score">90%</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block">PowerPoint Score</span>
+                            <span class="text-sm font-bold text-msppt" id="res-ppt-score">85%</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="startExamSimulation()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>Ulangi Ujian (Soal Acak Baru)</span>
+                        </button>
+                        <button onclick="switchTab('practice')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-5 py-2.5 rounded-xl text-sm transition">
+                            Lihat Pembahasan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHEAT SHEET TAB -->
+        <div id="tab-cheatsheet" class="tab-content hidden space-y-6">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-2">
+                    <button onclick="switchCheatTab('word')" id="cheat-tab-word" class="cheat-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-msword text-white">
+                        <i class="fa-solid fa-file-word mr-1.5"></i> Word
+                    </button>
+                    <button onclick="switchCheatTab('excel')" id="cheat-tab-excel" class="cheat-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-file-excel mr-1.5"></i> Excel
+                    </button>
+                    <button onclick="switchCheatTab('ppt')" id="cheat-tab-ppt" class="cheat-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-file-powerpoint mr-1.5"></i> PowerPoint
+                    </button>
+                </div>
+
+                <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="cheat-search-input" onkeyup="filterCheatsheetSearch()" placeholder="Cari shortcut / rumus..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+
+            <!-- Word Section -->
+            <div id="cheat-section-word" class="cheat-section space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h4 class="font-bold text-msword text-base flex items-center">
+                            <i class="fa-solid fa-file-contract mr-2"></i> Perbedaan Format .DOC vs .DOCX
+                        </h4>
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700">
+                                    <th class="p-2 border border-slate-200">Aspek</th>
+                                    <th class="p-2 border border-slate-200">.DOC</th>
+                                    <th class="p-2 border border-slate-200 text-msword">.DOCX</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr>
+                                    <td class="p-2 font-medium border border-slate-200">Versi</td>
+                                    <td class="p-2 border border-slate-200">1997 - 2003</td>
+                                    <td class="p-2 border border-slate-200 font-bold">2007 ke atas</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-medium border border-slate-200">Ukuran File</td>
+                                    <td class="p-2 border border-slate-200 text-rose-600">Besar</td>
+                                    <td class="p-2 border border-slate-200 text-emerald-600 font-bold">Kecil (Kompresi)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-medium border border-slate-200">Teknologi</td>
+                                    <td class="p-2 border border-slate-200">Binary</td>
+                                    <td class="p-2 border border-slate-200 font-bold">OpenXML</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h4 class="font-bold text-msword text-base flex items-center">
+                            <i class="fa-solid fa-window-maximize mr-2"></i> Bagian Jendela Microsoft Word
+                        </h4>
+                        <ul class="text-xs space-y-1.5 text-slate-600">
+                            <li><strong>Title Bar:</strong> Menampilkan nama dokumen.</li>
+                            <li><strong>Quick Access Toolbar:</strong> Tombol pintas (Save, Undo, Redo).</li>
+                            <li><strong>Ribbon Tab:</strong> Kumpulan menu utama (Home, Insert, Layout, dll).</li>
+                            <li><strong>Ruler:</strong> Penggaris penentu margin dan indentasi.</li>
+                            <li><strong>Status Bar:</strong> Info jumlah kata, halaman, & bahasa.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-900 text-base mb-4 flex items-center">
+                        <i class="fa-solid fa-keyboard text-msword mr-2"></i> Shortcut Penting Word
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs search-target-group">
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span>Dokumen Baru</span><code class="font-bold bg-white px-2 py-1 rounded border text-msword">Ctrl + N</code>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span>Simpan (Save)</span><code class="font-bold bg-white px-2 py-1 rounded border text-msword">Ctrl + S</code>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span>Save As</span><code class="font-bold bg-white px-2 py-1 rounded border text-msword">F12</code>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span>Rata Kanan Kiri</span><code class="font-bold bg-white px-2 py-1 rounded border text-msword">Ctrl + J</code>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span>Cek Ejaan (Spelling)</span><code class="font-bold bg-white px-2 py-1 rounded border text-msword">F7</code>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span>Page Break</span><code class="font-bold bg-white px-2 py-1 rounded border text-msword">Ctrl + Enter</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Excel Section -->
+            <div id="cheat-section-excel" class="cheat-section hidden space-y-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-msexcel text-base mb-4 flex items-center">
+                        <i class="fa-solid fa-calculator mr-2"></i> Rumus Utama Excel
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                            <span class="font-bold text-msexcel block">SUM / AVERAGE / MAX / MIN</span>
+                            <p class="text-slate-600"><code>=SUM(A1:A10)</code> : Total</p>
+                            <p class="text-slate-600"><code>=AVERAGE(B1:B10)</code> : Rata-rata</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                            <span class="font-bold text-msexcel block">IF / SUMIF / COUNTIF</span>
+                            <p class="text-slate-600"><code>=IF(C2>=75,"Lulus","Tidak")</code></p>
+                            <p class="text-slate-600"><code>=COUNTIF(A1:A10,"L")</code></p>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                            <span class="font-bold text-msexcel block">VLOOKUP & XLOOKUP</span>
+                            <p class="text-slate-600"><code>=VLOOKUP(nilai, tabel, col_index, FALSE)</code></p>
+                            <p class="text-slate-600"><code>=XLOOKUP(lookup, lookup_arr, return_arr)</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PPT Section -->
+            <div id="cheat-section-ppt" class="cheat-section hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h4 class="font-bold text-msppt text-base flex items-center">
+                            <i class="fa-solid fa-desktop mr-2"></i> Mode View PowerPoint
+                        </h4>
+                        <ul class="text-xs space-y-2 text-slate-600">
+                            <li><strong>Normal View:</strong> Edit slide utama.</li>
+                            <li><strong>Slide Sorter:</strong> Miniatur semua slide.</li>
+                            <li><strong>Slide Master:</strong> Pengaturan template dasar.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <h4 class="font-bold text-msppt text-base flex items-center">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Transisi vs Animasi
+                        </h4>
+                        <p class="text-xs text-slate-600"><strong>Transitions:</strong> Perpindahan antar slide.</p>
+                        <p class="text-xs text-slate-600"><strong>Animations:</strong> Gerakan objek di dalam slide.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Custom Modal Confirm Dialog -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xl mx-auto font-bold">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900" id="modal-title">Konfirmasi</h3>
+            <p class="text-xs text-slate-600 leading-relaxed" id="modal-msg">Apakah Anda yakin?</p>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeCustomModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 rounded-xl text-xs transition">
+                    Batal
+                </button>
+                <button id="modal-confirm-btn" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-semibold py-2 rounded-xl text-xs transition">
+                    Ya, Kirim
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-1">
+            <p class="font-semibold text-slate-700">MOS Certification Prep • Interactive 100-Question Hub</p>
+            <p>Word (34) • Excel (33) • PowerPoint (33) • Auto-Randomized</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC & 100 QUESTION BANK -->
+    <script>
+        // COMPREHENSIVE 100-QUESTION BANK FOR MICROSOFT OFFICE EXAM
+        const rawQuestionBank = [
+            // ==================== WORD QUESTIONS (1 - 34) ====================
+            {
+                id: 1,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Format file standar (default) dokumen Microsoft Word sejak versi Word 2007 berbasis XML adalah...",
+                options: [
+                    { text: ".DOC", isCorrect: false },
+                    { text: ".DOCX", isCorrect: true },
+                    { text: ".PDF", isCorrect: false },
+                    { text: ".TXT", isCorrect: false }
+                ],
+                rationale: "Format .DOCX diperkenalkan sejak Word 2007 berbasis OpenXML yang mempresi ukuran file agar lebih kecil dan aman."
+            },
+            {
+                id: 2,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Kombinasi tombol pintas (shortcut) keyboard untuk membuat dokumen baru pada Word adalah...",
+                options: [
+                    { text: "Ctrl + N", isCorrect: true },
+                    { text: "Ctrl + O", isCorrect: false },
+                    { text: "Ctrl + S", isCorrect: false },
+                    { text: "Ctrl + P", isCorrect: false }
+                ],
+                rationale: "Ctrl + N (New) membuka dokumen baru. Ctrl + O (Open), Ctrl + S (Save), Ctrl + P (Print)."
+            },
+            {
+                id: 3,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Apabila Anda ingin meratakan paragraf teks agar rata kanan dan kiri sekaligus (Justify), shortcutnya adalah...",
+                options: [
+                    { text: "Ctrl + E", isCorrect: false },
+                    { text: "Ctrl + L", isCorrect: false },
+                    { text: "Ctrl + R", isCorrect: false },
+                    { text: "Ctrl + J", isCorrect: true }
+                ],
+                rationale: "Ctrl + J digunakan untuk Justify (rata kanan-kiri). Ctrl + E rata tengah, Ctrl + L rata kiri, Ctrl + R rata kanan."
+            },
+            {
+                id: 4,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Bagian jendela Word yang menampilkan informasi jumlah kata, nomor halaman aktif, dan bahasa adalah...",
+                options: [
+                    { text: "Title Bar", isCorrect: false },
+                    { text: "Status Bar", isCorrect: true },
+                    { text: "Ribbon", isCorrect: false },
+                    { text: "Ruler", isCorrect: false }
+                ],
+                rationale: "Status Bar ada di bagian paling bawah jendela Word tempat informasi dokumen ditampilkan."
+            },
+            {
+                id: 5,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Fitur pada Word untuk membuat surat massal atau sertifikat dengan data penerima otomatis dinamakan...",
+                options: [
+                    { text: "Styles", isCorrect: false },
+                    { text: "Mailings (Mail Merge)", isCorrect: true },
+                    { text: "Track Changes", isCorrect: false },
+                    { text: "Table of Contents", isCorrect: false }
+                ],
+                rationale: "Mail Merge pada tab Mailings menghubungkan dokumen Word dengan database penerima."
+            },
+            {
+                id: 6,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut fungsi keyboard untuk menjalankan pemeriksaan ejaan dan tata bahasa (Spelling & Grammar) adalah...",
+                options: [
+                    { text: "F1", isCorrect: false },
+                    { text: "F5", isCorrect: false },
+                    { text: "F7", isCorrect: true },
+                    { text: "F12", isCorrect: false }
+                ],
+                rationale: "Tombol F7 secara instan memanggil dialog Spelling & Grammar pada Microsoft Word."
+            },
+            {
+                id: 7,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Syarat utama agar Daftar Isi (Table of Contents) dapat dibuat secara otomatis di Word adalah...",
+                options: [
+                    { text: "Ubah teks ke warna merah", isCorrect: false },
+                    { text: "Beri format Styles (Heading 1, Heading 2)", isCorrect: true },
+                    { text: "Gunakan spasi ganda", isCorrect: false },
+                    { text: "Gunakan huruf kapital semua", isCorrect: false }
+                ],
+                rationale: "Daftar Isi Otomatis membaca struktur judul berdasarkan tingkatan Styles Heading 1, Heading 2, dst."
+            },
+            {
+                id: 8,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Fitur untuk memisahkan halaman agar satu lembar berformat Landscape dan lembar lain Portrait adalah...",
+                options: [
+                    { text: "Page Break", isCorrect: false },
+                    { text: "Section Break (Next Page)", isCorrect: true },
+                    { text: "Header & Footer", isCorrect: false },
+                    { text: "Drop Cap", isCorrect: false }
+                ],
+                rationale: "Section Break membuat bagian dokumen independen dengan aturan orientasi/margin tersendiri."
+            },
+            {
+                id: 9,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut pintas untuk menyimpan dokumen dengan nama atau format baru (Save As) adalah...",
+                options: [
+                    { text: "Ctrl + S", isCorrect: false },
+                    { text: "F12", isCorrect: true },
+                    { text: "Shift + F12", isCorrect: false },
+                    { text: "Ctrl + F12", isCorrect: false }
+                ],
+                rationale: "F12 memanggil perintah Save As secara langsung di Microsoft Office."
+            },
+            {
+                id: 10,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk memotong (Cut) teks atau objek terpilih pada Word adalah...",
+                options: [
+                    { text: "Ctrl + C", isCorrect: false },
+                    { text: "Ctrl + X", isCorrect: true },
+                    { text: "Ctrl + V", isCorrect: false },
+                    { text: "Ctrl + Z", isCorrect: false }
+                ],
+                rationale: "Ctrl + X memotong objek, Ctrl + C menyalin, Ctrl + V menempelkan."
+            },
+            {
+                id: 11,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk berpindah ke awal dokumen paling pertama di Word secara instan adalah...",
+                options: [
+                    { text: "Ctrl + Home", isCorrect: true },
+                    { text: "Ctrl + End", isCorrect: false },
+                    { text: "Alt + Home", isCorrect: false },
+                    { text: "Shift + Home", isCorrect: false }
+                ],
+                rationale: "Ctrl + Home berpindah ke karakter pertama di awal dokumen."
+            },
+            {
+                id: 12,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Fitur di tab Review untuk memantau dan melacak setiap suntingan teks oleh pengguna lain dinamakan...",
+                options: [
+                    { text: "Restrict Editing", isCorrect: false },
+                    { text: "Track Changes", isCorrect: true },
+                    { text: "Compare", isCorrect: false },
+                    { text: "Word Count", isCorrect: false }
+                ],
+                rationale: "Track Changes menandai setiap penghapusan, penambahan, atau perubahan teks untuk kolaborasi."
+            },
+            {
+                id: 13,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Format penulisan huruf besar kapital pertama yang menonjol pada awal paragraf dinamakan...",
+                options: [
+                    { text: "WordArt", isCorrect: false },
+                    { text: "Drop Cap", isCorrect: true },
+                    { text: "Change Case", isCorrect: false },
+                    { text: "Text Box", isCorrect: false }
+                ],
+                rationale: "Drop Cap (Insert -> Drop Cap) memperbesar huruf pertama awal paragraf seperti pada majalah."
+            },
+            {
+                id: 14,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk mengganti teks tertentu secara otomatis di seluruh dokumen (Replace) adalah...",
+                options: [
+                    { text: "Ctrl + F", isCorrect: false },
+                    { text: "Ctrl + H", isCorrect: true },
+                    { text: "Ctrl + G", isCorrect: false },
+                    { text: "Ctrl + K", isCorrect: false }
+                ],
+                rationale: "Ctrl + H memanggil jendela Find & Replace. (Ctrl + F untuk Find)."
+            },
+            {
+                id: 15,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut keyboard untuk mengatur jarak spasi antar baris menjadi 1.5 spasi adalah...",
+                options: [
+                    { text: "Ctrl + 1", isCorrect: false },
+                    { text: "Ctrl + 2", isCorrect: false },
+                    { text: "Ctrl + 5", isCorrect: true },
+                    { text: "Ctrl + 1.5", isCorrect: false }
+                ],
+                rationale: "Ctrl + 1 spasi tunggal, Ctrl + 2 spasi ganda, Ctrl + 5 spasi 1.5."
+            },
+            {
+                id: 16,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Tab menu tempat Anda dapat mengatur Margin, Orientasi Kertas, dan Ukuran Kertas (Size) adalah...",
+                options: [
+                    { text: "Home", isCorrect: false },
+                    { text: "Insert", isCorrect: false },
+                    { text: "Layout (Page Layout)", isCorrect: true },
+                    { text: "Design", isCorrect: false }
+                ],
+                rationale: "Tab Layout menampung perintah tata letak halaman seperti Margin, Orientation, dan Size."
+            },
+            {
+                id: 17,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut keyboard untuk mengubah huruf kapitalisasi teks (UPPERCASE, lowercase, Title Case) adalah...",
+                options: [
+                    { text: "Shift + F3", isCorrect: true },
+                    { text: "Ctrl + F3", isCorrect: false },
+                    { text: "Alt + F3", isCorrect: false },
+                    { text: "F3", isCorrect: false }
+                ],
+                rationale: "Shift + F3 beralih di antara opsi Change Case secara cepat."
+            },
+            {
+                id: 18,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk membuat salinan teks (Copy) adalah...",
+                options: [
+                    { text: "Ctrl + C", isCorrect: true },
+                    { text: "Ctrl + V", isCorrect: false },
+                    { text: "Ctrl + X", isCorrect: false },
+                    { text: "Ctrl + A", isCorrect: false }
+                ],
+                rationale: "Ctrl + C memicu perintah Copy."
+            },
+            {
+                id: 19,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk memilih seluruh teks di dokumen (Select All) adalah...",
+                options: [
+                    { text: "Ctrl + A", isCorrect: true },
+                    { text: "Ctrl + S", isCorrect: false },
+                    { text: "Ctrl + L", isCorrect: false },
+                    { text: "Shift + A", isCorrect: false }
+                ],
+                rationale: "Ctrl + A menyeleksi seluruh konten dokumen."
+            },
+            {
+                id: 20,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Indentation di mana baris pertama paragraf menjorok ke dalam sedangkan baris berikutnya tetap dinamakan...",
+                options: [
+                    { text: "Hanging Indent", isCorrect: false },
+                    { text: "First Line Indent", isCorrect: true },
+                    { text: "Left Indent", isCorrect: false },
+                    { text: "Right Indent", isCorrect: false }
+                ],
+                rationale: "First Line Indent menjorokkan baris pertama saja."
+            },
+            {
+                id: 21,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Indentation di mana baris kedua dan seterusnya menjorok ke dalam dinamakan...",
+                options: [
+                    { text: "First Line Indent", isCorrect: false },
+                    { text: "Hanging Indent", isCorrect: true },
+                    { text: "Right Indent", isCorrect: false },
+                    { text: "Center Indent", isCorrect: false }
+                ],
+                rationale: "Hanging Indent sering digunakan pada penulisan Daftar Pustaka."
+            },
+            {
+                id: 22,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk menyisipkan tautan (Hyperlink) pada teks di Word adalah...",
+                options: [
+                    { text: "Ctrl + H", isCorrect: false },
+                    { text: "Ctrl + K", isCorrect: true },
+                    { text: "Ctrl + L", isCorrect: false },
+                    { text: "Ctrl + T", isCorrect: false }
+                ],
+                rationale: "Ctrl + K membuka dialog Insert Hyperlink."
+            },
+            {
+                id: 23,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk membatalkan perintah terakhir (Undo) di Word adalah...",
+                options: [
+                    { text: "Ctrl + Y", isCorrect: false },
+                    { text: "Ctrl + Z", isCorrect: true },
+                    { text: "Ctrl + U", isCorrect: false },
+                    { text: "Ctrl + R", isCorrect: false }
+                ],
+                rationale: "Ctrl + Z membendung aksi terakhir (Undo). Ctrl + Y untuk Redo."
+            },
+            {
+                id: 24,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Fitur untuk menyisipkan teks atau gambar latar belakang samar seperti kata 'RAHASIA' atau 'DRAFT' dinamakan...",
+                options: [
+                    { text: "Page Color", isCorrect: false },
+                    { text: "Watermark", isCorrect: true },
+                    { text: "Page Border", isCorrect: false },
+                    { text: "Theme", isCorrect: false }
+                ],
+                rationale: "Watermark (Design -> Watermark) memberi tanda latar samar di belakang teks."
+            },
+            {
+                id: 25,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Tab tempat Anda menyisipkan Tabel, Gambar, Shape, SmartArt, dan Chart di Word adalah...",
+                options: [
+                    { text: "Home", isCorrect: false },
+                    { text: "Insert", isCorrect: true },
+                    { text: "Design", isCorrect: false },
+                    { text: "References", isCorrect: false }
+                ],
+                rationale: "Tab Insert berisi semua elemen penyisipan objek."
+            },
+            {
+                id: 26,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Format file dokumen Word versi terdahulu (Word 97 - 2003) ber-ekstensi...",
+                options: [
+                    { text: ".DOCX", isCorrect: false },
+                    { text: ".DOC", isCorrect: true },
+                    { text: ".DOTX", isCorrect: false },
+                    { text: ".RTF", isCorrect: false }
+                ],
+                rationale: "Format .DOC dipakai pada Word versi 97 hingga 2003."
+            },
+            {
+                id: 27,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk memberikan efek garis bawah (Underline) pada teks adalah...",
+                options: [
+                    { text: "Ctrl + B", isCorrect: false },
+                    { text: "Ctrl + I", isCorrect: false },
+                    { text: "Ctrl + U", isCorrect: true },
+                    { text: "Ctrl + D", isCorrect: false }
+                ],
+                rationale: "Ctrl + U (Underline), Ctrl + B (Bold), Ctrl + I (Italic)."
+            },
+            {
+                id: 28,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk memaksa kursor pindah ke halaman baru (Page Break) adalah...",
+                options: [
+                    { text: "Shift + Enter", isCorrect: false },
+                    { text: "Ctrl + Enter", isCorrect: true },
+                    { text: "Alt + Enter", isCorrect: false },
+                    { text: "Ctrl + Shift + Enter", isCorrect: false }
+                ],
+                rationale: "Ctrl + Enter menyisipkan Page Break secara instan."
+            },
+            {
+                id: 29,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Area atas dan bawah dokumen yang berulang pada setiap halaman dinamakan...",
+                options: [
+                    { text: "Margin", isCorrect: false },
+                    { text: "Header and Footer", isCorrect: true },
+                    { text: "Footnote", isCorrect: false },
+                    { text: "Endnote", isCorrect: false }
+                ],
+                rationale: "Header di area atas dan Footer di area bawah berulang di seluruh lembar."
+            },
+            {
+                id: 30,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Fitur untuk menyisipkan catatan kaki di bagian bawah halaman tempat referensi berada dinamakan...",
+                options: [
+                    { text: "Footer", isCorrect: false },
+                    { text: "Footnote", isCorrect: true },
+                    { text: "Endnote", isCorrect: false },
+                    { text: "Caption", isCorrect: false }
+                ],
+                rationale: "Footnote ditempatkan di bawah halaman aktif. Endnote di akhir seluruh dokumen."
+            },
+            {
+                id: 31,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Shortcut untuk membuka dialog pencarian teks (Find) adalah...",
+                options: [
+                    { text: "Ctrl + F", isCorrect: true },
+                    { text: "Ctrl + G", isCorrect: false },
+                    { text: "Ctrl + S", isCorrect: false },
+                    { text: "Ctrl + P", isCorrect: false }
+                ],
+                rationale: "Ctrl + F membuka panel Find."
+            },
+            {
+                id: 32,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Fungsi dari perintah 'Keep with next' pada pengaturan paragraf Word adalah...",
+                options: [
+                    { text: "Menghapus paragraf berikutnya", isCorrect: false },
+                    { text: "Mencegah terpisahnya judul paragraf dari isi di halaman berbeda", isCorrect: true },
+                    { text: "Menggabungkan dua paragraf jadi satu", isCorrect: false },
+                    { text: "Mengunci teks agar tidak bisa diubah", isCorrect: false }
+                ],
+                rationale: "Keep with next menjaga agar judul dan paragraf di bawahnya selalu berada di halaman yang sama."
+            },
+            {
+                id: 33,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Fitur untuk membuat penomoran berurut otomatis dengan simbol dinamakan...",
+                options: [
+                    { text: "Bullets", isCorrect: true },
+                    { text: "Numbering", isCorrect: false },
+                    { text: "Multilevel List", isCorrect: false },
+                    { text: "Styles", isCorrect: false }
+                ],
+                rationale: "Bullets menggunakan simbol (titik, centang). Numbering menggunakan angka/huruf."
+            },
+            {
+                id: 34,
+                module: "word",
+                category: "Microsoft Word",
+                question: "Fitur pada Word untuk membandingkan dua dokumen berbeda secara berdampingan dinamakan...",
+                options: [
+                    { text: "Combine", isCorrect: false },
+                    { text: "Compare (View Side by Side)", isCorrect: true },
+                    { text: "Split View", isCorrect: false },
+                    { text: "Track Changes", isCorrect: false }
+                ],
+                rationale: "Compare / View Side by Side membandingkan dua file dokumen secara langsung."
+            },
+
+            // ==================== EXCEL QUESTIONS (35 - 67) ====================
+            {
+                id: 35,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Sintaks penulisan rumus IF yang benar jika Nilai pada sel C2 >= 75 adalah...",
+                options: [
+                    { text: "=IF(C2>=75, Lulus, Tidak)", isCorrect: false },
+                    { text: '=IF(C2>=75, "Lulus", "Tidak")', isCorrect: true },
+                    { text: "=IF C2>=75 THEN 'Lulus'", isCorrect: false },
+                    { text: "=IF(C2>=75; 'Lulus'; 'Tidak')", isCorrect: false }
+                ],
+                rationale: "Teks pada rumus IF wajib menggunakan tanda petik ganda (\" \")."
+            },
+            {
+                id: 36,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Simbol yang digunakan untuk mengunci baris/kolom (Referensi Absolut) pada Excel adalah...",
+                options: [
+                    { text: "#", isCorrect: false },
+                    { text: "$", isCorrect: true },
+                    { text: "%", isCorrect: false },
+                    { text: "*", isCorrect: false }
+                ],
+                rationale: "Tanda $ mengunci posisi sel agar tidak bergeser saat di-copy."
+            },
+            {
+                id: 37,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi untuk mencari data pada tabel secara vertikal berdasarkan kriteria presisi adalah...",
+                options: [
+                    { text: "HLOOKUP", isCorrect: false },
+                    { text: "VLOOKUP", isCorrect: true },
+                    { text: "LOOKUP", isCorrect: false },
+                    { text: "INDEX", isCorrect: false }
+                ],
+                rationale: "VLOOKUP (Vertical Lookup) mencari data per kolom dari atas ke bawah."
+            },
+            {
+                id: 38,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Shortcut cepat untuk menjumlahkan angka secara otomatis (AutoSUM) adalah...",
+                options: [
+                    { text: "Alt + =", isCorrect: true },
+                    { text: "Ctrl + +", isCorrect: false },
+                    { text: "Shift + S", isCorrect: false },
+                    { text: "Ctrl + S", isCorrect: false }
+                ],
+                rationale: "Alt + = secara otomatis menyisipkan fungsi =SUM()."
+            },
+            {
+                id: 39,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Perbedaan fungsi =COUNT() dan =COUNTA() pada Excel adalah...",
+                options: [
+                    { text: "COUNT menghitung angka saja, COUNTA menghitung semua sel tidak kosong", isCorrect: true },
+                    { text: "COUNT menghitung teks saja, COUNTA menghitung angka saja", isCorrect: false },
+                    { text: "Sama saja tidak ada bedanya", isCorrect: false },
+                    { text: "COUNTA menghitung sel kosong saja", isCorrect: false }
+                ],
+                rationale: "COUNT hanya menghitung sel berangka. COUNTA menghitung angka + teks + simbol."
+            },
+            {
+                id: 40,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Rumus untuk menjumlahkan nilai pada sel yang hanya memenuhi kriteria tertentu adalah...",
+                options: [
+                    { text: "=SUM()", isCorrect: false },
+                    { text: "=SUMIF()", isCorrect: true },
+                    { text: "=COUNTIF()", isCorrect: false },
+                    { text: "=TOTALIF()", isCorrect: false }
+                ],
+                rationale: "SUMIF menjumlahkan nilai dengan kriteria kualifikasi tertentu."
+            },
+            {
+                id: 41,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Hasil dari rumus `=LEFT(\"INDONESIA\", 4)` adalah...",
+                options: [
+                    { text: "INDO", isCorrect: true },
+                    { text: "ESIA", isCorrect: false },
+                    { text: "DONE", isCorrect: false },
+                    { text: "INDON", isCorrect: false }
+                ],
+                rationale: "LEFT mengambil 4 karakter awal dari kiri."
+            },
+            {
+                id: 42,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Manakah di bawah ini yang merupakan contoh Referensi Campuran (Mixed Reference) yang mengunci baris saja?",
+                options: [
+                    { text: "$A$1", isCorrect: false },
+                    { text: "A$1", isCorrect: true },
+                    { text: "$A1", isCorrect: false },
+                    { text: "A1", isCorrect: false }
+                ],
+                rationale: "Pada A$1, tanda $ hanya berada di depan angka baris (1)."
+            },
+            {
+                id: 43,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fitur interaktif Excel untuk merangkum dan mengeksplorasi ribuan baris data tanpa rumus manual adalah...",
+                options: [
+                    { text: "Data Validation", isCorrect: false },
+                    { text: "PivotTable", isCorrect: true },
+                    { text: "Conditional Formatting", isCorrect: false },
+                    { text: "Consolidate", isCorrect: false }
+                ],
+                rationale: "PivotTable meringkas dan menganalisis data dalam jumlah besar dengan cepat."
+            },
+            {
+                id: 44,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Shortcut untuk mengaktifkan atau mematikan fitur Filter pada judul kolom Excel adalah...",
+                options: [
+                    { text: "Ctrl + Shift + L", isCorrect: true },
+                    { text: "Ctrl + F", isCorrect: false },
+                    { text: "Ctrl + T", isCorrect: false },
+                    { text: "Alt + F1", isCorrect: false }
+                ],
+                rationale: "Ctrl + Shift + L dengan cepat mengaktifkan / mematikan AutoFilter."
+            },
+            {
+                id: 45,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Tombol keyboard untuk langsung masuk ke mode edit sel aktif di Excel adalah...",
+                options: [
+                    { text: "F2", isCorrect: true },
+                    { text: "F4", isCorrect: false },
+                    { text: "F7", isCorrect: false },
+                    { text: "F12", isCorrect: false }
+                ],
+                rationale: "F2 membuka isi sel aktif untuk diedit."
+            },
+            {
+                id: 46,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi untuk menampilkan tanggal sekaligus jam saat ini secara otomatis adalah...",
+                options: [
+                    { text: "=TODAY()", isCorrect: false },
+                    { text: "=NOW()", isCorrect: true },
+                    { text: "=DATE()", isCorrect: false },
+                    { text: "=TIME()", isCorrect: false }
+                ],
+                rationale: "=NOW() menampilkan tanggal + jam. =TODAY() menampilkan tanggal saja."
+            },
+            {
+                id: 47,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi pencarian data modern pengganti VLOOKUP yang dapat mencari data ke kiri maupun kanan adalah...",
+                options: [
+                    { text: "XLOOKUP", isCorrect: true },
+                    { text: "LOOKUP.PLUS", isCorrect: false },
+                    { text: "VLOOKUP2", isCorrect: false },
+                    { text: "ADVANCEDLOOKUP", isCorrect: false }
+                ],
+                rationale: "XLOOKUP adalah fungsi pencarian generasi baru yang fleksibel."
+            },
+            {
+                id: 48,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Kode kesalahan (error message) `#DIV/0!` pada Excel mengindikasikan bahwa...",
+                options: [
+                    { text: "Kolom kurang lebar", isCorrect: false },
+                    { text: "Rumus melakukan pembagian dengan angka nol (0)", isCorrect: true },
+                    { text: "Nilai tidak ditemukan dalam tabel", isCorrect: false },
+                    { text: "Nama rumus salah ketik", isCorrect: false }
+                ],
+                rationale: "#DIV/0! muncul saat rumus membagi angka dengan nol/sel kosong."
+            },
+            {
+                id: 49,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Kode kesalahan `#N/A` pada rumus VLOOKUP mengindikasikan bahwa...",
+                options: [
+                    { text: "Nilai yang dicari tidak ditemukan pada tabel referensi", isCorrect: true },
+                    { text: "Tipe data tidak cocok", isCorrect: false },
+                    { text: "Penyebut bernilai nol", isCorrect: false },
+                    { text: "Sel terhapus", isCorrect: false }
+                ],
+                rationale: "#N/A (Not Available) terjadi saat kriteria lookup tak ada dalam tabel."
+            },
+            {
+                id: 50,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Tampilan tanda `#####` pada sel Excel menandakan bahwa...",
+                options: [
+                    { text: "Rumus salah sintaks", isCorrect: false },
+                    { text: "Ukuran lebar kolom terlalu sempit untuk menampilkan angka", isCorrect: true },
+                    { text: "Terdapat virus pada dokumen", isCorrect: false },
+                    { text: "Sel dikunci oleh password", isCorrect: false }
+                ],
+                rationale: "##### muncul jika kolom kurang lebar untuk memuat angka/tanggal."
+            },
+            {
+                id: 51,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Rumus untuk menghitung rata-rata nilai dari sel B1 sampai B10 adalah...",
+                options: [
+                    { text: "=MEAN(B1:B10)", isCorrect: false },
+                    { text: "=AVERAGE(B1:B10)", isCorrect: true },
+                    { text: "=SUM(B1:B10)/10", isCorrect: false },
+                    { text: "=MEDIAN(B1:B10)", isCorrect: false }
+                ],
+                rationale: "=AVERAGE() digunakan untuk menghitung nilai rata-rata numerik."
+            },
+            {
+                id: 52,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi untuk mengambil data dari tabel referensi secara horizontal (per baris) adalah...",
+                options: [
+                    { text: "VLOOKUP", isCorrect: false },
+                    { text: "HLOOKUP", isCorrect: true },
+                    { text: "XLOOKUP", isCorrect: false },
+                    { text: "INDEX", isCorrect: false }
+                ],
+                rationale: "HLOOKUP (Horizontal Lookup) mencari data secara mendaftar per baris."
+            },
+            {
+                id: 53,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Shortcut untuk membuat tabel otomatis dari rentang data terpilih adalah...",
+                options: [
+                    { text: "Ctrl + T", isCorrect: true },
+                    { text: "Ctrl + Shift + T", isCorrect: false },
+                    { text: "Alt + T", isCorrect: false },
+                    { text: "Ctrl + B", isCorrect: false }
+                ],
+                rationale: "Ctrl + T mengubah rentang sel biasa menjadi Format as Table."
+            },
+            {
+                id: 54,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Shortcut untuk memilih seluruh kolom dari sel yang aktif adalah...",
+                options: [
+                    { text: "Shift + Space", isCorrect: false },
+                    { text: "Ctrl + Space", isCorrect: true },
+                    { text: "Ctrl + A", isCorrect: false },
+                    { text: "Alt + Space", isCorrect: false }
+                ],
+                rationale: "Ctrl + Space menyeleksi seluruh kolom. Shift + Space menyeleksi seluruh baris."
+            },
+            {
+                id: 55,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi untuk menggabungkan dua atau lebih teks dari beberapa sel menjadi satu adalah...",
+                options: [
+                    { text: "MERGE()", isCorrect: false },
+                    { text: "CONCAT() / CONCATENATE()", isCorrect: true },
+                    { text: "JOIN()", isCorrect: false },
+                    { text: "COMBINE()", isCorrect: false }
+                ],
+                rationale: "CONCAT / CONCATENATE menggabungkan string teks dari beberapa sel."
+            },
+            {
+                id: 56,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fitur untuk membatasi jenis atau rentang input data pada sel (misal hanya angka 1-100) dinamakan...",
+                options: [
+                    { text: "Conditional Formatting", isCorrect: false },
+                    { text: "Data Validation", isCorrect: true },
+                    { text: "Consolidate", isCorrect: false },
+                    { text: "Protect Sheet", isCorrect: false }
+                ],
+                rationale: "Data Validation mengontrol aturan validasi data yang boleh diinput pengguna."
+            },
+            {
+                id: 57,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fitur untuk memberi warna sel otomatis berdasarkan aturan nilai (misal nilai <60 berwarna merah) adalah...",
+                options: [
+                    { text: "Data Validation", isCorrect: false },
+                    { text: "Conditional Formatting", isCorrect: true },
+                    { text: "Cell Styles", isCorrect: false },
+                    { text: "Format Painter", isCorrect: false }
+                ],
+                rationale: "Conditional Formatting mengubah tampilan sel secara dinamis berdasarkan nilai sel."
+            },
+            {
+                id: 58,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Shortcut fungsi F4 saat sedang mengedit rumus di Excel berfungsi untuk...",
+                options: [
+                    { text: "Menghapus sel", isCorrect: false },
+                    { text: "Mengubah tipe referensi sel (Relatif -> Absolut $)", isCorrect: true },
+                    { text: "Menutup Excel", isCorrect: false },
+                    { text: "Menjalankan rumus", isCorrect: false }
+                ],
+                rationale: "Menekan F4 pada alamat sel di dalam rumus menambahkan tanda $ (Absolut)."
+            },
+            {
+                id: 59,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fitur untuk membekukan baris atas atau kolom kiri agar tetap terlihat saat di-scroll adalah...",
+                options: [
+                    { text: "Split", isCorrect: false },
+                    { text: "Freeze Panes", isCorrect: true },
+                    { text: "Lock Cells", isCorrect: false },
+                    { text: "Hide Columns", isCorrect: false }
+                ],
+                rationale: "Freeze Panes (View -> Freeze Panes) mengunci header agar tidak hilang saat di-scroll."
+            },
+            {
+                id: 60,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi `=RIGHT(\"SURABAYA\", 3)` mengembalikan nilai...",
+                options: [
+                    { text: "AYA", isCorrect: true },
+                    { text: "SUR", isCorrect: false },
+                    { text: "RAB", isCorrect: false },
+                    { text: "BAYA", isCorrect: false }
+                ],
+                rationale: "RIGHT mengambil 3 karakter dari sebelah kanan."
+            },
+            {
+                id: 61,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi untuk memberikan peringkat nilai angka dalam suatu rentang data dinamakan...",
+                options: [
+                    { text: "=ORDER()", isCorrect: false },
+                    { text: "=RANK() / =RANK.EQ()", isCorrect: true },
+                    { text: "=POSITION()", isCorrect: false },
+                    { text: "=LEVEL()", isCorrect: false }
+                ],
+                rationale: "=RANK.EQ() memberikan posisi rangking suatu angka terhadap daftar."
+            },
+            {
+                id: 62,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi `=ROUND(12.3456, 2)` akan membulatkan angka menjadi...",
+                options: [
+                    { text: "12.34", isCorrect: false },
+                    { text: "12.35", isCorrect: true },
+                    { text: "12.3", isCorrect: false },
+                    { text: "12", isCorrect: false }
+                ],
+                rationale: "ROUND membulatkan ke 2 desimal di belakang koma (5 membulat ke atas -> 12.35)."
+            },
+            {
+                id: 63,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Opsi Paste Special yang digunakan untuk mengubah susunan data dari baris ke kolom atau sebaliknya adalah...",
+                options: [
+                    { text: "Values", isCorrect: false },
+                    { text: "Transpose", isCorrect: true },
+                    { text: "Formats", isCorrect: false },
+                    { text: "Link", isCorrect: false }
+                ],
+                rationale: "Transpose memutar orientasi data horizontal <-> vertikal."
+            },
+            {
+                id: 64,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Rumus untuk menghitung banyaknya sel yang berisi huruf atau teks 'L' pada rentang A1:A10 adalah...",
+                options: [
+                    { text: '=COUNTIF(A1:A10, "L")', isCorrect: true },
+                    { text: '=SUMIF(A1:A10, "L")', isCorrect: false },
+                    { text: '=COUNT(A1:A10, "L")', isCorrect: false },
+                    { text: '=FIND("L", A1:A10)', isCorrect: false }
+                ],
+                rationale: "COUNTIF menghitung jumlah sel sesuai syarat kriteria."
+            },
+            {
+                id: 65,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Fungsi `=MID(\"JAKARTA\", 3, 3)` mengembalikan nilai...",
+                options: [
+                    { text: "KAR", isCorrect: true },
+                    { text: "JAK", isCorrect: false },
+                    { text: "ART", isCorrect: false },
+                    { text: "KARTA", isCorrect: false }
+                ],
+                rationale: "MID mengambil karakter mulai dari indeks 3 sebanyak 3 huruf -> 'KAR'."
+            },
+            {
+                id: 66,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Tombol pintas untuk menggabungkan sel dan meratakan teks ke tengah (Merge & Center) tidak memiliki default shortcut bawaan tunggal, namun diatur melalui tab...",
+                options: [
+                    { text: "Home (Alignment group)", isCorrect: true },
+                    { text: "Insert", isCorrect: false },
+                    { text: "Data", isCorrect: false },
+                    { text: "View", isCorrect: false }
+                ],
+                rationale: "Merge & Center terletak di grup Alignment pada tab Home."
+            },
+            {
+                id: 67,
+                module: "excel",
+                category: "Microsoft Excel",
+                question: "Pesan kesalahan `#VALUE!` terjadi ketika...",
+                options: [
+                    { text: "Rumus menggunakan tipe argumen yang salah (misal teks dikalikan angka)", isCorrect: true },
+                    { text: "Sel tidak ditemukan", isCorrect: false },
+                    { text: "Angka terlalu besar", isCorrect: false },
+                    { text: "File Excel rusak", isCorrect: false }
+                ],
+                rationale: "#VALUE! menandakan tipe data dalam kalkulasi matematis salah."
+            },
+
+            // ==================== POWERPOINT QUESTIONS (68 - 100) ====================
+            {
+                id: 68,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Shortcut keyboard untuk memulai presentasi (Slide Show) dari slide paling awal adalah...",
+                options: [
+                    { text: "F5", isCorrect: true },
+                    { text: "Shift + F5", isCorrect: false },
+                    { text: "Ctrl + F5", isCorrect: false },
+                    { text: "F11", isCorrect: false }
+                ],
+                rationale: "F5 memulai Slide Show dari slide pertama. Shift + F5 dari slide aktif."
+            },
+            {
+                id: 69,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk memberi efek gerak saat perpindahan dari satu slide ke slide berikutnya dinamakan...",
+                options: [
+                    { text: "Animations", isCorrect: false },
+                    { text: "Transitions", isCorrect: true },
+                    { text: "Slide Sorter", isCorrect: false },
+                    { text: "Design Ideas", isCorrect: false }
+                ],
+                rationale: "Transitions memberi efek antar slide. Animations pada objek di dalam slide."
+            },
+            {
+                id: 70,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Shortcut keyboard untuk menambahkan slide baru di PowerPoint adalah...",
+                options: [
+                    { text: "Ctrl + N", isCorrect: false },
+                    { text: "Ctrl + M", isCorrect: true },
+                    { text: "Ctrl + S", isCorrect: false },
+                    { text: "Ctrl + D", isCorrect: false }
+                ],
+                rationale: "Ctrl + M menyisipkan slide baru. (Ctrl + N membuka file PPT baru)."
+            },
+            {
+                id: 71,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Saat Slide Show berlangsung, tombol keyboard untuk mengubah layar menjadi hitam polos (Black screen) adalah...",
+                options: [
+                    { text: "W", isCorrect: false },
+                    { text: "B", isCorrect: true },
+                    { text: "H", isCorrect: false },
+                    { text: "Esc", isCorrect: false }
+                ],
+                rationale: "Tombol B membuat layar hitam polos. Tombol W membuat layar putih polos."
+            },
+            {
+                id: 72,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Mode tampilan yang menampilkan miniatur seluruh slide untuk mengatur urutan dengan mudah dinamakan...",
+                options: [
+                    { text: "Normal View", isCorrect: false },
+                    { text: "Slide Sorter View", isCorrect: true },
+                    { text: "Reading View", isCorrect: false },
+                    { text: "Notes Page", isCorrect: false }
+                ],
+                rationale: "Slide Sorter menampilkan grid slide kecil untuk penyusunan urutan."
+            },
+            {
+                id: 73,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur utama PowerPoint untuk mengubah desain dasar, font, dan posisi logo pada seluruh slide secara konsisten dinamakan...",
+                options: [
+                    { text: "Slide Master", isCorrect: true },
+                    { text: "Format Background", isCorrect: false },
+                    { text: "Design Ideas", isCorrect: false },
+                    { text: "Animation Pane", isCorrect: false }
+                ],
+                rationale: "Slide Master berfungsi sebagai cetakan dasar template seluruh slide."
+            },
+            {
+                id: 74,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Shortcut untuk mengelompokkan beberapa objek terpilih menjadi satu grup (Group) adalah...",
+                options: [
+                    { text: "Ctrl + G", isCorrect: true },
+                    { text: "Ctrl + Shift + G", isCorrect: false },
+                    { text: "Ctrl + K", isCorrect: false },
+                    { text: "Ctrl + J", isCorrect: false }
+                ],
+                rationale: "Ctrl + G untuk Group. Ctrl + Shift + G untuk Ungroup."
+            },
+            {
+                id: 75,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Format file standar presentasi PowerPoint sejak versi 2007 ber-ekstensi...",
+                options: [
+                    { text: ".PPT", isCorrect: false },
+                    { text: ".PPTX", isCorrect: true },
+                    { text: ".PPS", isCorrect: false },
+                    { text: ".POTX", isCorrect: false }
+                ],
+                rationale: "Format bawaan PowerPoint modern adalah .PPTX."
+            },
+            {
+                id: 76,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Shortcut untuk menduplikasi slide atau objek yang sedang dipilih secara instan adalah...",
+                options: [
+                    { text: "Ctrl + C", isCorrect: false },
+                    { text: "Ctrl + D", isCorrect: true },
+                    { text: "Ctrl + V", isCorrect: false },
+                    { text: "Ctrl + Shift + D", isCorrect: false }
+                ],
+                rationale: "Ctrl + D (Duplicate) menyalin dan menempel sekaligus."
+            },
+            {
+                id: 77,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Mode tampilan khusus presenter saat terhubung ke proyektor di mana presenter bisa melihat catatan rahasia dan timer dinamakan...",
+                options: [
+                    { text: "Presenter View", isCorrect: true },
+                    { text: "Notes View", isCorrect: false },
+                    { text: "Audience Mode", isCorrect: false },
+                    { text: "Dual Display", isCorrect: false }
+                ],
+                rationale: "Presenter View menampilkan slide aktif, slide berikutnya, timer, dan catatan pembicara."
+            },
+            {
+                id: 78,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Shortcut untuk memulai Slide Show dari slide yang sedang aktif/dipilih saat ini adalah...",
+                options: [
+                    { text: "F5", isCorrect: false },
+                    { text: "Shift + F5", isCorrect: true },
+                    { text: "Ctrl + F5", isCorrect: false },
+                    { text: "Alt + F5", isCorrect: false }
+                ],
+                rationale: "Shift + F5 menjalankan Slide Show mulai dari halaman slide yang sedang terbuka."
+            },
+            {
+                id: 79,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Animasi yang mengatur cara objek **masuk** ke dalam layar slide termasuk dalam kategori...",
+                options: [
+                    { text: "Entrance", isCorrect: true },
+                    { text: "Emphasis", isCorrect: false },
+                    { text: "Exit", isCorrect: false },
+                    { text: "Motion Paths", isCorrect: false }
+                ],
+                rationale: "Entrance = Masuk, Emphasis = Penekanan di tempat, Exit = Keluar, Motion Paths = Jalur gerak."
+            },
+            {
+                id: 80,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Animasi yang mengatur efek saat objek **keluar** meninggalkan layar slide adalah...",
+                options: [
+                    { text: "Entrance", isCorrect: false },
+                    { text: "Emphasis", isCorrect: false },
+                    { text: "Exit", isCorrect: true },
+                    { text: "Motion Paths", isCorrect: false }
+                ],
+                rationale: "Kategori Exit mengatur efek hilangnya objek dari slide."
+            },
+            {
+                id: 81,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Efek transisi khusus pada PowerPoint 2019/365 yang memberikan pergerakan halus otomatis pada objek yang sama antar slide dinamakan...",
+                options: [
+                    { text: "Fade", isCorrect: false },
+                    { text: "Morph", isCorrect: true },
+                    { text: "Push", isCorrect: false },
+                    { text: "Zoom", isCorrect: false }
+                ],
+                rationale: "Morph Transition menganalisis dan menganimasikan objek antar slide secara seamless."
+            },
+            {
+                id: 82,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk mengukur dan merekam durasi penyampaian presentasi pada tiap slide dinamakan...",
+                options: [
+                    { text: "Record Slide Show", isCorrect: false },
+                    { text: "Rehearse Timings", isCorrect: true },
+                    { text: "Set Up Show", isCorrect: false },
+                    { text: "Custom Show", isCorrect: false }
+                ],
+                rationale: "Rehearse Timings melatih pembicara dengan menghitung durasi bicara tiap slide."
+            },
+            {
+                id: 83,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk mengelompokkan beberapa slide ke dalam bagian kategori/topik dinamakan...",
+                options: [
+                    { text: "Section", isCorrect: true },
+                    { text: "Group", isCorrect: false },
+                    { text: "Folder", isCorrect: false },
+                    { text: "Category", isCorrect: false }
+                ],
+                rationale: "Add Section (di thumbnail slide) membagi presentasi menjadi beberapa bagian bernama."
+            },
+            {
+                id: 84,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Tombol keyboard untuk menyembunyikan slide agar tidak muncul saat Slide Show adalah...",
+                options: [
+                    { text: "Klik kanan -> Hide Slide", isCorrect: true },
+                    { text: "Delete", isCorrect: false },
+                    { text: "Ctrl + H", isCorrect: false },
+                    { text: "Esc", isCorrect: false }
+                ],
+                rationale: "Hide Slide menyembunyikan slide tanpa menghapusnya dari file."
+            },
+            {
+                id: 85,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk mengambil sampel warna dari gambar/objek di layar slide dinamakan...",
+                options: [
+                    { text: "Format Painter", isCorrect: false },
+                    { text: "Eyedropper", isCorrect: true },
+                    { text: "Color Picker", isCorrect: false },
+                    { text: "Fill Color", isCorrect: false }
+                ],
+                rationale: "Eyedropper mengambil kode warna presisi dari elemen apapun di slide."
+            },
+            {
+                id: 86,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Tombol keyboard untuk menghentikan dan keluar dari mode Slide Show adalah...",
+                options: [
+                    { text: "Esc", isCorrect: true },
+                    { text: "Enter", isCorrect: false },
+                    { text: "Backspace", isCorrect: false },
+                    { text: "Space", isCorrect: false }
+                ],
+                rationale: "Tombol Esc (Escape) langsung mengakhiri presentasi."
+            },
+            {
+                id: 87,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk menyisipkan diagram hirarki, proses, atau struktur organisasi secara cepat adalah...",
+                options: [
+                    { text: "Chart", isCorrect: false },
+                    { text: "SmartArt", isCorrect: true },
+                    { text: "WordArt", isCorrect: false },
+                    { text: "Shapes", isCorrect: false }
+                ],
+                rationale: "SmartArt menyediakan template diagram visual siap pakai."
+            },
+            {
+                id: 88,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Shortcut keyboard untuk menyalin format tampilan objek ke objek lain (Format Painter) adalah...",
+                options: [
+                    { text: "Ctrl + Shift + C (Copy) & Ctrl + Shift + V (Paste)", isCorrect: true },
+                    { text: "Ctrl + C & Ctrl + V", isCorrect: false },
+                    { text: "Alt + C & Alt + V", isCorrect: false },
+                    { text: "Shift + C & Shift + V", isCorrect: false }
+                ],
+                rationale: "Ctrl + Shift + C menyalin style/format saja tanpa menyalin teks."
+            },
+            {
+                id: 89,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk memotong gambar mengikuti bentuk geometri tertentu (misal lingkaran) dinamakan...",
+                options: [
+                    { text: "Crop to Shape", isCorrect: true },
+                    { text: "Shape Fill", isCorrect: false },
+                    { text: "Masking", isCorrect: false },
+                    { text: "Picture Border", isCorrect: false }
+                ],
+                rationale: "Crop -> Crop to Shape memotong foto persis sesuai bentuk shape."
+            },
+            {
+                id: 90,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "PowerPoint memungkinkan hasil presentasi diekspor menjadi format video bertipe...",
+                options: [
+                    { text: ".MP4 / .WMV", isCorrect: true },
+                    { text: ".AVI / .MOV", isCorrect: false },
+                    { text: ".MP3 / .WAV", isCorrect: false },
+                    { text: ".GIF saja", isCorrect: false }
+                ],
+                rationale: "Export -> Create a Video menghasilkan file .MP4 atau .WMV."
+            },
+            {
+                id: 91,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk menanamkan jenis huruf (font) ke dalam file PPT agar tidak berubah saat dibuka di komputer lain adalah...",
+                options: [
+                    { text: "Embed Fonts in the file", isCorrect: true },
+                    { text: "Save as PDF", isCorrect: false },
+                    { text: "Compress Pictures", isCorrect: false },
+                    { text: "Lock Presentation", isCorrect: false }
+                ],
+                rationale: "File Options -> Save -> Embed Fonts menyimpan font bersama file."
+            },
+            {
+                id: 92,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Tab menu tempat Anda dapat mengubah Tema (Theme) dan Variasi Warna slide adalah...",
+                options: [
+                    { text: "Home", isCorrect: false },
+                    { text: "Design", isCorrect: true },
+                    { text: "Transitions", isCorrect: false },
+                    { text: "View", isCorrect: false }
+                ],
+                rationale: "Tab Design berisi koleksi Tema dan Variasi warna dasar."
+            },
+            {
+                id: 93,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Shortcut untuk memilih seluruh slide di panel navigasi kiri adalah...",
+                options: [
+                    { text: "Ctrl + A", isCorrect: true },
+                    { text: "Ctrl + Shift + A", isCorrect: false },
+                    { text: "Shift + Click", isCorrect: false },
+                    { text: "Alt + A", isCorrect: false }
+                ],
+                rationale: "Ctrl + A menyeleksi semua slide saat panel thumbnail aktif."
+            },
+            {
+                id: 94,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk menyisipkan tombol navigasi otomatis (seperti tombol Home, Next, Back) dinamakan...",
+                options: [
+                    { text: "Action Buttons", isCorrect: true },
+                    { text: "SmartArt", isCorrect: false },
+                    { text: "Quick Shapes", isCorrect: false },
+                    { text: "Triggers", isCorrect: false }
+                ],
+                rationale: "Insert -> Shapes -> Action Buttons menyediakan tombol interaktif pemicu aksi."
+            },
+            {
+                id: 95,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Mode tampilan yang menjalankan presentasi dalam jendela biasa (bukan layar penuh) dinamakan...",
+                options: [
+                    { text: "Reading View", isCorrect: true },
+                    { text: "Normal View", isCorrect: false },
+                    { text: "Slide Show", isCorrect: false },
+                    { text: "Slide Master", isCorrect: false }
+                ],
+                rationale: "Reading View menjalankan slide di dalam window aplikasi ber-taskbar."
+            },
+            {
+                id: 96,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur pemicu animasi yang membuat animasi baru berjalan saat objek tertentu diklik dinamakan...",
+                options: [
+                    { text: "Trigger", isCorrect: true },
+                    { text: "Action", isCorrect: false },
+                    { text: "Hyperlink", isCorrect: false },
+                    { text: "Delay", isCorrect: false }
+                ],
+                rationale: "Trigger di Animation Pane menghubungkan jalannya animasi dengan klik objek."
+            },
+            {
+                id: 97,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Untuk merapikan posisi beberapa objek agar sejajar secara vertikal atau horizontal, digunakan perintah...",
+                options: [
+                    { text: "Align & Distribute", isCorrect: true },
+                    { text: "Group", isCorrect: false },
+                    { text: "Merge Shapes", isCorrect: false },
+                    { text: "Snap to Grid", isCorrect: false }
+                ],
+                rationale: "Align (Align Left, Align Center, Distribute Horizontally) merapikan tata letak."
+            },
+            {
+                id: 98,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk menggabungkan dua atau lebih bentuk Shape (Union, Combine, Fragment, Intersect, Subtract) dinamakan...",
+                options: [
+                    { text: "Merge Shapes", isCorrect: true },
+                    { text: "Group", isCorrect: false },
+                    { text: "Edit Points", isCorrect: false },
+                    { text: "SmartArt", isCorrect: false }
+                ],
+                rationale: "Merge Shapes melakukan operasi vektor pada shape di PowerPoint."
+            },
+            {
+                id: 99,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fungsi dari opsi animasi 'Start: With Previous' adalah...",
+                options: [
+                    { text: "Animasi berjalan bersamaan dengan animasi sebelumnya", isCorrect: true },
+                    { text: "Animasi berjalan setelah animasi sebelumnya selesai", isCorrect: false },
+                    { text: "Animasi berjalan saat diklik saja", isCorrect: false },
+                    { text: "Animasi diulang terus menerus", isCorrect: false }
+                ],
+                rationale: "With Previous menjalankan efek serentak dengan event sebelumnya."
+            },
+            {
+                id: 100,
+                module: "ppt",
+                category: "Microsoft PowerPoint",
+                question: "Fitur untuk merekam penjelasan suara dan narasi video webcam langsung ke slide presentasi dinamakan...",
+                options: [
+                    { text: "Record Presentation", isCorrect: true },
+                    { text: "Screen Recording", isCorrect: false },
+                    { text: "Audio Export", isCorrect: false },
+                    { text: "Voice Over", isCorrect: false }
+                ],
+                rationale: "Record Presentation merekam narasi audio, penunjuk laser, dan video wajah presenter."
+            }
+        ];
+
+        // USER STATE & RANDOMIZATION LOGIC
+        let currentUser = {
+            fullName: "",
+            instansi: ""
+        };
+
+        let questionBank = [];
+        let currentTab = 'dashboard';
+        let practiceFilteredQuestions = [];
+        let currentPracticeIdx = 0;
+        let practiceScores = { correct: 0, attempted: 0 };
+        let activePracticeFilter = 'all';
+
+        // EXAM STATE
+        let examQuestions = [];
+        let currentExamIdx = 0;
+        let userExamAnswers = {};
+        let bookmarkedExamQuestions = {};
+        let examTimerInterval = null;
+        let examTimeLeft = 15 * 60;
+
+        // FISHER-YATES SHUFFLE HELPER
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // SHUFFLE QUESTIONS & OPTIONS
+        function generateRandomizedBank() {
+            // Deep copy raw bank & shuffle options inside each question
+            const reshuffled = rawQuestionBank.map(q => {
+                return {
+                    ...q,
+                    options: shuffleArray(q.options) // Shuffle options A, B, C, D
+                };
+            });
+            // Shuffle the 100 questions order
+            return shuffleArray(reshuffled);
+        }
+
+        function reshuffleQuestionBank() {
+            questionBank = generateRandomizedBank();
+            filterPractice(activePracticeFilter);
+        }
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto randomize bank on page reload
+            questionBank = generateRandomizedBank();
+            
+            // Check if user was registered in session
+            const savedName = sessionStorage.getItem('mos_user_fullname');
+            const savedInst = sessionStorage.getItem('mos_user_instansi');
+
+            if (savedName && savedName.trim() !== '') {
+                currentUser.fullName = savedName;
+                currentUser.instansi = savedInst || 'MOS Candidate';
+                applyUserRegistration();
+            } else {
+                // Show mandatory registration modal
+                document.getElementById('user-gate-modal').classList.remove('hidden');
+            }
+
+            updateDashboardStats();
+            initPracticeMode();
+            renderPracticePaletteGrid();
+        });
+
+        // HANDLE USER REGISTRATION FORM
+        function handleUserRegistration(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('input-user-fullname').value.trim();
+            const instansiInput = document.getElementById('input-user-instansi').value.trim();
+
+            if (!nameInput) {
+                document.getElementById('gate-error-msg').classList.remove('hidden');
+                return;
+            }
+
+            currentUser.fullName = nameInput;
+            currentUser.instansi = instansiInput || 'MOS Candidate';
+
+            sessionStorage.setItem('mos_user_fullname', currentUser.fullName);
+            sessionStorage.setItem('mos_user_instansi', currentUser.instansi);
+
+            applyUserRegistration();
+        }
+
+        function applyUserRegistration() {
+            // Hide Gate Modal
+            document.getElementById('user-gate-modal').classList.add('hidden');
+
+            // Update Headers & Profile Displays
+            document.getElementById('display-header-user').innerText = currentUser.fullName;
+            document.getElementById('display-header-instansi').innerText = currentUser.instansi;
+            document.getElementById('dash-greeting-name').innerText = currentUser.fullName;
+            document.getElementById('exam-start-user-name').innerText = currentUser.fullName;
+            document.getElementById('result-user-fullname').innerText = currentUser.fullName;
+            document.getElementById('mobile-user-name').innerText = currentUser.fullName;
+
+            const initial = currentUser.fullName.charAt(0).toUpperCase() || 'U';
+            document.getElementById('user-avatar-initial').innerText = initial;
+        }
+
+        function openChangeUserModal() {
+            document.getElementById('input-user-fullname').value = currentUser.fullName;
+            document.getElementById('input-user-instansi').value = currentUser.instansi === 'MOS Candidate' ? '' : currentUser.instansi;
+            document.getElementById('gate-error-msg').classList.add('hidden');
+            document.getElementById('user-gate-modal').classList.remove('hidden');
+        }
+
+        // TAB NAVIGATION
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if(activeNav) {
+                activeNav.classList.add('bg-slate-800', 'text-white');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            if(tabId === 'practice') {
+                renderPracticeQuestion();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('dash-total-q').innerText = rawQuestionBank.length;
+            document.getElementById('dash-attempted').innerText = practiceScores.attempted;
+
+            const highscore = localStorage.getItem('mos_exam_highscore') || '0%';
+            document.getElementById('dash-highscore').innerText = highscore;
+
+            const numericScore = parseInt(highscore);
+            if(numericScore >= 70) {
+                document.getElementById('dash-status').innerText = 'LULUS';
+                document.getElementById('dash-status').className = 'text-2xl font-bold text-emerald-600 mt-1';
+            } else if(numericScore > 0) {
+                document.getElementById('dash-status').innerText = 'BELUM LULUS';
+                document.getElementById('dash-status').className = 'text-2xl font-bold text-rose-600 mt-1';
+            }
+        }
+
+        function startCategoryPractice(cat) {
+            switchTab('practice');
+            filterPractice(cat);
+        }
+
+        // PRACTICE LOGIC
+        function initPracticeMode() {
+            practiceFilteredQuestions = [...questionBank];
+            currentPracticeIdx = 0;
+        }
+
+        function filterPractice(module) {
+            activePracticeFilter = module;
+            document.querySelectorAll('.prac-filter-btn').forEach(btn => {
+                btn.className = 'prac-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200';
+            });
+            const activeBtn = document.getElementById(`prac-filter-${module}`);
+            if(activeBtn) {
+                activeBtn.className = 'prac-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white';
+            }
+
+            if(module === 'all') {
+                practiceFilteredQuestions = [...questionBank];
+            } else {
+                practiceFilteredQuestions = questionBank.filter(q => q.module === module);
+            }
+
+            currentPracticeIdx = 0;
+            renderPracticePaletteGrid();
+            renderPracticeQuestion();
+        }
+
+        function togglePracticePalette() {
+            document.getElementById('practice-palette-box').classList.toggle('hidden');
+        }
+
+        function renderPracticePaletteGrid() {
+            const grid = document.getElementById('practice-palette-grid');
+            grid.innerHTML = '';
+
+            practiceFilteredQuestions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                const isCurrent = idx === currentPracticeIdx;
+                btn.className = `p-1.5 rounded-md text-xs font-semibold ${isCurrent ? 'bg-indigo-600 text-white ring-2 ring-slate-900' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} transition`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => {
+                    currentPracticeIdx = idx;
+                    renderPracticeQuestion();
+                    togglePracticePalette();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function renderPracticeQuestion() {
+            if(practiceFilteredQuestions.length === 0) return;
+
+            const q = practiceFilteredQuestions[currentPracticeIdx];
+            document.getElementById('practice-category-badge').innerText = q.category;
+            document.getElementById('practice-current-num').innerText = currentPracticeIdx + 1;
+            document.getElementById('practice-total-num').innerText = practiceFilteredQuestions.length;
+
+            const progressPct = ((currentPracticeIdx + 1) / practiceFilteredQuestions.length) * 100;
+            document.getElementById('practice-progress-bar').style.width = `${progressPct}%`;
+
+            document.getElementById('practice-question-text').innerText = `${currentPracticeIdx + 1}. ${q.question}`;
+
+            const container = document.getElementById('practice-options-container');
+            container.innerHTML = '';
+            document.getElementById('practice-explanation-box').classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition text-sm font-medium text-slate-700 flex items-center justify-between group';
+                btn.onclick = () => selectPracticeAnswer(idx, q);
+
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-indigo-100 text-slate-600 group-hover:text-indigo-700 font-bold text-xs flex items-center justify-center">
+                            ${String.fromCharCode(65 + idx)}
+                        </span>
+                        <span>${opt.text}</span>
+                    </div>
+                    <i class="fa-regular fa-circle text-slate-300 text-base"></i>
+                `;
+                container.appendChild(btn);
+            });
+
+            document.getElementById('practice-prev-btn').disabled = currentPracticeIdx === 0;
+            renderPracticePaletteGrid();
+        }
+
+        function selectPracticeAnswer(selectedIdx, question) {
+            const container = document.getElementById('practice-options-container');
+            const buttons = container.querySelectorAll('button');
+
+            practiceScores.attempted++;
+            updateDashboardStats();
+
+            buttons.forEach((btn, idx) => {
+                btn.onclick = null;
+                const opt = question.options[idx];
+
+                if(opt.isCorrect) {
+                    btn.className = 'w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-semibold text-sm flex items-center justify-between';
+                    btn.querySelector('i').className = 'fa-solid fa-circle-check text-emerald-600 text-lg';
+                } else if(idx === selectedIdx && !opt.isCorrect) {
+                    btn.className = 'w-full text-left p-4 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-900 text-sm flex items-center justify-between';
+                    btn.querySelector('i').className = 'fa-solid fa-circle-xmark text-rose-600 text-lg';
+                } else {
+                    btn.className = 'w-full text-left p-4 rounded-xl border border-slate-200 opacity-50 text-sm';
+                }
+            });
+
+            if(question.options[selectedIdx].isCorrect) {
+                practiceScores.correct++;
+                document.getElementById('practice-score-counter').innerText = `Benar: ${practiceScores.correct}`;
+                document.getElementById('practice-result-title').innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 mr-2 text-base"></i> Jawaban Anda Benar!`;
+            } else {
+                document.getElementById('practice-result-title').innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500 mr-2 text-base"></i> Jawaban Kurang Tepat`;
+            }
+
+            document.getElementById('practice-explanation-text').innerText = question.rationale;
+            document.getElementById('practice-explanation-box').classList.remove('hidden');
+        }
+
+        function nextPracticeQuestion() {
+            if(currentPracticeIdx < practiceFilteredQuestions.length - 1) {
+                currentPracticeIdx++;
+                renderPracticeQuestion();
+            }
+        }
+
+        function prevPracticeQuestion() {
+            if(currentPracticeIdx > 0) {
+                currentPracticeIdx--;
+                renderPracticeQuestion();
+            }
+        }
+
+        // SIMULATED EXAM ENGINE
+        function startExamSimulation() {
+            // Guard: ensure user filled name
+            if (!currentUser.fullName) {
+                openChangeUserModal();
+                return;
+            }
+
+            document.getElementById('exam-start-screen').classList.add('hidden');
+            document.getElementById('exam-result-screen').classList.add('hidden');
+            document.getElementById('exam-active-screen').classList.remove('hidden');
+
+            const configVal = document.getElementById('exam-config-select').value;
+            const [qCount, tMins] = configVal.split('_').map(Number);
+
+            // Reshuffle questions and select randomized sample
+            const freshBank = generateRandomizedBank();
+            examQuestions = freshBank.slice(0, qCount);
+            currentExamIdx = 0;
+            userExamAnswers = {};
+            bookmarkedExamQuestions = {};
+            examTimeLeft = tMins * 60;
+
+            document.getElementById('exam-total-count').innerText = examQuestions.length;
+
+            startExamTimer();
+            renderExamQuestion();
+        }
+
+        function startExamTimer() {
+            clearInterval(examTimerInterval);
+            examTimerInterval = setInterval(() => {
+                examTimeLeft--;
+                const mins = Math.floor(examTimeLeft / 60);
+                const secs = examTimeLeft % 60;
+                document.getElementById('exam-timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                if(examTimeLeft <= 0) {
+                    clearInterval(examTimerInterval);
+                    finishExamEarly();
+                }
+            }, 1000);
+        }
+
+        function renderExamQuestion() {
+            const q = examQuestions[currentExamIdx];
+            document.getElementById('exam-current-idx').innerText = currentExamIdx + 1;
+            document.getElementById('exam-module-tag').innerText = q.category.toUpperCase();
+            document.getElementById('exam-question-text').innerText = q.question;
+
+            const container = document.getElementById('exam-options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const isSelected = userExamAnswers[currentExamIdx] === idx;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-xl border ${isSelected ? 'border-2 border-indigo-600 bg-indigo-50 text-indigo-950 font-semibold' : 'border-slate-200 hover:border-slate-300'} transition text-sm flex items-center justify-between`;
+                btn.onclick = () => {
+                    userExamAnswers[currentExamIdx] = idx;
+                    renderExamQuestion();
+                };
+
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-lg ${isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'} font-bold text-xs flex items-center justify-center">
+                            ${String.fromCharCode(65 + idx)}
+                        </span>
+                        <span>${opt.text}</span>
+                    </div>
+                    <i class="${isSelected ? 'fa-solid fa-circle-dot text-indigo-600' : 'fa-regular fa-circle text-slate-300'} text-base"></i>
+                `;
+                container.appendChild(btn);
+            });
+
+            document.getElementById('exam-prev-btn').disabled = currentExamIdx === 0;
+            renderExamPaletteGrid();
+        }
+
+        function toggleExamBookmark() {
+            bookmarkedExamQuestions[currentExamIdx] = !bookmarkedExamQuestions[currentExamIdx];
+            renderExamQuestion();
+        }
+
+        function toggleExamPalette() {
+            document.getElementById('exam-palette-modal').classList.toggle('hidden');
+        }
+
+        function renderExamPaletteGrid() {
+            const grid = document.getElementById('exam-palette-grid');
+            grid.innerHTML = '';
+
+            examQuestions.forEach((_, idx) => {
+                const btn = document.createElement('button');
+                const isAnswered = userExamAnswers[idx] !== undefined;
+                const isCurrent = idx === currentExamIdx;
+                const isBM = bookmarkedExamQuestions[idx];
+
+                let bgClass = 'bg-slate-100 text-slate-700';
+                if(isAnswered) bgClass = 'bg-indigo-600 text-white';
+                if(isBM) bgClass = 'bg-amber-500 text-white';
+                if(isCurrent) bgClass += ' ring-2 ring-slate-900 font-bold';
+
+                btn.className = `p-2 rounded-lg text-xs font-semibold ${bgClass} transition`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => {
+                    currentExamIdx = idx;
+                    renderExamQuestion();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function nextExamQuestion() {
+            if(currentExamIdx < examQuestions.length - 1) {
+                currentExamIdx++;
+                renderExamQuestion();
+            } else {
+                showFinishModal();
+            }
+        }
+
+        function prevExamQuestion() {
+            if(currentExamIdx > 0) {
+                currentExamIdx--;
+                renderExamQuestion();
+            }
+        }
+
+        function showFinishModal() {
+            const modal = document.getElementById('custom-modal');
+            const title = document.getElementById('modal-title');
+            const msg = document.getElementById('modal-msg');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+
+            title.innerText = "Kirim Jawaban Ujian?";
+            msg.innerText = `Anda telah menjawab ${Object.keys(userExamAnswers).length} dari ${examQuestions.length} soal. Yakin ingin menyelesaikan ujian?`;
+
+            confirmBtn.onclick = () => {
+                closeCustomModal();
+                finishExamEarly();
+            };
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeCustomModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function finishExamEarly() {
+            clearInterval(examTimerInterval);
+
+            let correctCount = 0;
+            let moduleScores = {
+                word: { correct: 0, total: 0 },
+                excel: { correct: 0, total: 0 },
+                ppt: { correct: 0, total: 0 }
+            };
+
+            examQuestions.forEach((q, idx) => {
+                const userAns = userExamAnswers[idx];
+                const mod = q.module;
+                moduleScores[mod].total++;
+
+                if(userAns !== undefined && q.options[userAns].isCorrect) {
+                    correctCount++;
+                    moduleScores[mod].correct++;
+                }
+            });
+
+            const scorePct = Math.round((correctCount / examQuestions.length) * 100);
+            localStorage.setItem('mos_exam_highscore', `${scorePct}%`);
+            updateDashboardStats();
+
+            document.getElementById('exam-active-screen').classList.add('hidden');
+            document.getElementById('exam-result-screen').classList.remove('hidden');
+
+            document.getElementById('result-score-percent').innerText = `${scorePct}%`;
+            document.getElementById('result-user-fullname').innerText = currentUser.fullName;
+            document.getElementById('result-score-detail').innerText = `Anda menjawab benar ${correctCount} dari ${examQuestions.length} soal`;
+
+            const calcModScore = (mod) => {
+                if(moduleScores[mod].total === 0) return '0%';
+                return `${Math.round((moduleScores[mod].correct / moduleScores[mod].total) * 100)}%`;
+            };
+
+            document.getElementById('res-word-score').innerText = calcModScore('word');
+            document.getElementById('res-excel-score').innerText = calcModScore('excel');
+            document.getElementById('res-ppt-score').innerText = calcModScore('ppt');
+
+            // Automatically re-randomize main question bank for next session
+            questionBank = generateRandomizedBank();
+        }
+
+        // CHEATSHEET TAB
+        function switchCheatTab(mod) {
+            document.querySelectorAll('.cheat-tab-btn').forEach(btn => {
+                btn.className = 'cheat-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200';
+            });
+            document.querySelectorAll('.cheat-section').forEach(sec => sec.classList.add('hidden'));
+
+            const activeBtn = document.getElementById(`cheat-tab-${mod}`);
+            if(activeBtn) {
+                let activeBg = 'bg-msword';
+                if(mod === 'excel') activeBg = 'bg-msexcel';
+                if(mod === 'ppt') activeBg = 'bg-msppt';
+                activeBtn.className = `cheat-tab-btn px-4 py-2 rounded-xl text-xs font-bold ${activeBg} text-white`;
+            }
+
+            document.getElementById(`cheat-section-${mod}`).classList.remove('hidden');
+        }
+
+        function openCheatsheetModule(mod) {
+            switchTab('cheatsheet');
+            switchCheatTab(mod);
+        }
+
+        function filterCheatsheetSearch() {
+            const query = document.getElementById('cheat-search-input').value.toLowerCase();
+            const activeSection = document.querySelector('.cheat-section:not(.hidden)');
+            if(!activeSection) return;
+
+            const cards = activeSection.querySelectorAll('.search-target-group > div, .grid > div');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
